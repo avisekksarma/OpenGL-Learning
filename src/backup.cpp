@@ -1,5 +1,6 @@
+
+// #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "../include/glad/glad.h"
 #include <stdlib.h>
 #include <stdio.h>
 static void error_callback(int error, const char* description)
