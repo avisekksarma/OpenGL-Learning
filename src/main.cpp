@@ -6,6 +6,9 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 void processInput(GLFWwindow *window);
 
+
+// This program is just for checking if glad and glfw are 
+// working together or not.
 int main()
 {
     glfwInit();

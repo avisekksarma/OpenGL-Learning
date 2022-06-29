@@ -1,8 +1,12 @@
-
 // #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+// this program is for checking if glfw3 is working 
+// correctly or not, see commands.txt to run it.
+
+
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);

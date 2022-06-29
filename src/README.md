@@ -1,6 +1,9 @@
 ### Opengl hello triangle
 ##### Short writeup for confusing parts only rather than like note
 
+### Note: The comments in code is done by me, where some imp tips might be missed , so atleast quickly see the code+comment of original learnopengl too from learnopengl.com site.
+
+
 1. Opengl works in 3d but our screen is 2d of pixels, so a large part of OpenGL's work is about transforming all 3D coordinates to 2D pixels that fit on your screen. The process of transforming 3D coordinates to 2D pixels is managed by the graphics pipeline of OpenGL
 
 2. Graphics pipeline - two parts: 
