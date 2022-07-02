@@ -7,8 +7,7 @@
 #include "../include/stb_image.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
-
+void processInput(GLFWwindow *window, Shader *s, float *val);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -149,23 +148,27 @@ int main()
     ourShader.setFloat("height", 1.0f);
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
+
+    // value store for uniform
+    float val = 0.0f;
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
         // input
         // -----
-        processInput(window);
+        processInput(window, &ourShader, &val);
 
         // render
         // ------
         glClearColor(0.4f, 0.6f, 0.0f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture[0]);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture[1]);
+
         // draw our first triangle
         ourShader.use();
         // ourShader.setFloat("offset", 0.5f);
@@ -194,17 +197,29 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, Shader *s, float *val)
 {
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        *val = *val - 0.01f;
+        s->setFloat("val", (*val));
+    }
+    else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        *val = *val + 0.01f;
+        s->setFloat("val", (*val));
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
+

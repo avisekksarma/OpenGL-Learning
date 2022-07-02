@@ -48,7 +48,7 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("shaders-code/vertex.vs", "shaders-code/fragment.fs");
+    Shader ourShader("practice-shaders/shader.vs", "practice-shaders/shader.fs");
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
@@ -107,7 +107,7 @@ int main()
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load("../assets/container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("../assets/mario.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
