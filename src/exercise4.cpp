@@ -12,6 +12,9 @@ void processInput(GLFWwindow *window, Shader *s, float *val);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// movement
+float movement = 0.0f;
+
 int main()
 {
     // glfw: initialize and configure
@@ -155,6 +158,9 @@ int main()
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture[1]);
+
+    // for movement
+    ourShader.setFloat("move", movement);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -199,7 +205,7 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window, Shader *s, float *val)
 {
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
@@ -210,6 +216,16 @@ void processInput(GLFWwindow *window, Shader *s, float *val)
     {
         *val = *val + 0.01f;
         s->setFloat("val", (*val));
+    }
+    else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        movement += 30.0f;
+        s->setFloat("move", movement);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        movement -= 30.0f;
+        s->setFloat("move", movement);
     }
 }
 
@@ -222,4 +238,3 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
-
