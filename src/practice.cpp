@@ -3,6 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <iostream>
+#include "../include/glm/glm.hpp"
+#include "../include/glm/gtc/matrix_transform.hpp"
+#include "../include/glm/gtc/type_ptr.hpp"
 #include "shaderClass.hpp"
 #include "../include/stb_image.h"
 
@@ -15,6 +18,14 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
+    // test for transformation
+    glm::vec3 sc(0.5f, 0.5f, 0.5f);
+    // glm::vec3 sc(1.5f, 1.5f, 1.5f);
+    glm::mat4 tr(1.0f);
+    tr = glm::rotate(tr, 1.57079632679f, glm::vec3(0.0f, 0.0f, 1.0f));
+    tr = glm::scale(tr, sc);
+    // end of  test
+
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -48,7 +59,7 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("practice-shaders/shader.vs", "practice-shaders/shader.fs");
+    Shader ourShader("shaders-code/vertex.vs", "shaders-code/fragment.fs");
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
@@ -107,7 +118,7 @@ int main()
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load("../assets/mario.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("../assets/container.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -150,6 +161,9 @@ int main()
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
     // render loop
+    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
+
     // -----------
     while (!glfwWindowShouldClose(window))
     {
@@ -157,6 +171,18 @@ int main()
         // -----
         processInput(window);
 
+        // transformation part
+        // glm::vec3 sc(0.5f, 0.5f, 0.5f);
+        glm::vec3 sc(0.5f, 0.5f, 1.5f);
+        glm::mat4 tr(1.0f);
+        tr = glm::translate(tr, glm::vec3(0.5f, 0.2f, 0.0f));
+        tr = glm::rotate(tr, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        tr = glm::scale(tr, sc);
+        
+    
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
+        // end of  transformation part
         // render
         // ------
         glClearColor(0.4f, 0.6f, 0.0f, 1.0f);
