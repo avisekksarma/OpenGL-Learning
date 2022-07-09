@@ -19,11 +19,11 @@ const unsigned int SCR_HEIGHT = 600;
 int main()
 {
     // test for transformation
-    glm::vec3 sc(0.5f, 0.5f, 0.5f);
-    // glm::vec3 sc(1.5f, 1.5f, 1.5f);
-    glm::mat4 tr(1.0f);
-    tr = glm::rotate(tr, 1.57079632679f, glm::vec3(0.0f, 0.0f, 1.0f));
-    tr = glm::scale(tr, sc);
+    // glm::vec3 sc(0.5f, 0.5f, 0.5f);
+    // // glm::vec3 sc(1.5f, 1.5f, 1.5f);
+    // glm::mat4 tr(1.0f);
+    // tr = glm::rotate(tr, 1.57079632679f, glm::vec3(0.0f, 0.0f, 1.0f));
+    // tr = glm::scale(tr, sc);
     // end of  test
 
     // glfw: initialize and configure
@@ -101,6 +101,41 @@ int main()
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
+    // making another vao,vbo,ebo
+    // float vertices1[] = {
+    //     // positions          // colors           // texture coords
+    //     -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
+    //     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+    //     -1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+    //     -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+    // };
+    float *vertices1 = vertices;
+    unsigned int indices1[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+    unsigned int VBO1, VAO1, EBO1;
+    glGenVertexArrays(1, &VAO1);
+    glGenBuffers(1, &VBO1);
+    glGenBuffers(1, &EBO1);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices1), indices1, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -156,13 +191,13 @@ int main()
     // first we need to use shader to then give uniform value.
     ourShader.use();
     // float val = 0.5f;
-    ourShader.setFloat("offset", 0.5f);
-    ourShader.setFloat("height", 1.0f);
+    // ourShader.setFloat("offset", 0.5f);
+    // ourShader.setFloat("height", 1.0f);
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
     // render loop
-    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
+    // unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+    // glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
 
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -176,9 +211,9 @@ int main()
         glm::vec3 sc(0.5f, 0.5f, 1.5f);
         glm::mat4 tr(1.0f);
         // tr = glm::translate(tr, glm::vec3(0.5f, 0.2f, 0.0f));
-        tr = glm::rotate(tr, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
         tr = glm::translate(tr, glm::vec3(0.5f, 0.2f, 0.0f));
-    
+        tr = glm::rotate(tr, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
         unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
         // end of  transformation part
@@ -187,21 +222,26 @@ int main()
         glClearColor(0.4f, 0.6f, 0.0f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture[0]);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture[1]);
         // draw our first triangle
         ourShader.use();
         // ourShader.setFloat("offset", 0.5f);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // glDrawArrays(GL_LINES, 0, 4);
-        // glDrawArrays(GL_LINES, 2, 2);
-        // glBindVertexArray(0); // no need to unbind it every time
+        // for setting transform of next container
+        tr = glm::mat4(1.0f);
+        // tr = glm::translate(tr, glm::vec3(0.5f, 0.2f, 0.0f));
+        // tr = glm::rotate(tr, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        tr = glm::translate(tr, glm::vec3(-0.5f, 0.5f, 0.0f));
+        tr = glm::scale(tr,glm::vec3(sin((float)glfwGetTime()),1.0f,0.0f));
+        transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
+        // end of transform 
+        glBindVertexArray(VAO1); 
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
+
+        //  -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -211,6 +251,9 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO1);
+    glDeleteBuffers(1, &VBO1);
+    glDeleteBuffers(1, &EBO1);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
