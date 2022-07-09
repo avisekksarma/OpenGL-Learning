@@ -13,7 +13,7 @@
 #include "../include/stb_image.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window,float & valx,float &valy,float & valz);
 
 // to see this lesson specific - search for 3d-part zone
 #define cubes_no 10
@@ -236,15 +236,18 @@ int main()
         glm::vec3 a = glm::vec3(x,y,z);
         axis.push_back(a);
     }
+    float valx,valy,valz;
+    valx=valy=valz=1.0f;
+
     while (!glfwWindowShouldClose(window))
     {
         // input
         // -----
-        processInput(window);
+        processInput(window,valx,valy,valz);
 
         // render
         // ------
-        glClearColor(0.4f, 0.6f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // glClear(GL_COLOR_BUFFER_BIT);
         ourShader.use();
@@ -253,8 +256,11 @@ int main()
         glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); // draw our first triangle
+        view = glm::translate(view, glm::vec3(valx, valy, valz));
+        // VVI: based on playing with perspective projection: i found that
+        // in aspect ratio if width>height then height is increased of the box in view space 
+        // and vice versa
+        projection = glm::perspective(glm::radians(55.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); // draw our first triangle
         unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
         unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
         unsigned int projLoc = glGetUniformLocation(ourShader.ID, "projection");
@@ -265,8 +271,6 @@ int main()
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, trs[i]);
-            float z = (rand() % 3) / 2.0f;
-
             model = glm::rotate(model, (float)glfwGetTime() + 20.0f * i, axis[i]);
             // glm::mat4 model = glm::mat4(1.0f);
             // model = glm::translate(model, trs[i]);
@@ -292,10 +296,22 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window,float & valx,float &valy,float & valz)
 {
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        valx -= 0.1f;
+    else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        valx += 0.1f;
+    else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        valy -= 0.1f;
+    else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        valy += 0.1f;
+    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        valz -= 0.1f;
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        valz += 0.1f;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
