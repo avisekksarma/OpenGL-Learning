@@ -12,19 +12,14 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
+// to see this lesson specific - search for 3d-part zone
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-    // test for transformation
-    glm::vec3 sc(0.5f, 0.5f, 0.5f);
-    // glm::vec3 sc(1.5f, 1.5f, 1.5f);
-    glm::mat4 tr(1.0f);
-    tr = glm::rotate(tr, 1.57079632679f, glm::vec3(0.0f, 0.0f, 1.0f));
-    tr = glm::scale(tr, sc);
-    // end of  test
 
     // glfw: initialize and configure
     // ------------------------------
@@ -60,6 +55,8 @@ int main()
     // build and compile our shader program
     // ------------------------------------
     Shader ourShader("shaders-code/vertex.vs", "shaders-code/fragment.fs");
+    // using shader is important before setting value to uniforms
+    ourShader.use();
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
@@ -73,6 +70,24 @@ int main()
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
+
+    // 3d-part
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-60.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(55.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    // end of 3d-part
+    // now sending values to GPU in shaders from here(CPU)
+    int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    modelLoc = glGetUniformLocation(ourShader.ID, "view");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(view));
+    modelLoc = glGetUniformLocation(ourShader.ID, "projection");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    // end of data sending part
+
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -156,13 +171,9 @@ int main()
     // first we need to use shader to then give uniform value.
     ourShader.use();
     // float val = 0.5f;
-    ourShader.setFloat("offset", 0.5f);
-    ourShader.setFloat("height", 1.0f);
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
     // render loop
-    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
 
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -171,37 +182,16 @@ int main()
         // -----
         processInput(window);
 
-        // transformation part
-        // glm::vec3 sc(0.5f, 0.5f, 0.5f);
-        glm::vec3 sc(0.5f, 0.5f, 1.5f);
-        glm::mat4 tr(1.0f);
-        // tr = glm::translate(tr, glm::vec3(0.5f, 0.2f, 0.0f));
-        tr = glm::rotate(tr, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        tr = glm::translate(tr, glm::vec3(0.5f, 0.2f, 0.0f));
-    
-        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(tr));
-        // end of  transformation part
         // render
         // ------
         glClearColor(0.4f, 0.6f, 0.0f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture[0]);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture[1]);
         // draw our first triangle
         ourShader.use();
         // ourShader.setFloat("offset", 0.5f);
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        // glDrawArrays(GL_LINES, 0, 4);
-        // glDrawArrays(GL_LINES, 2, 2);
-        // glBindVertexArray(0); // no need to unbind it every time
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
