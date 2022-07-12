@@ -1,4 +1,4 @@
 include/
 commands.txt
 **/*.o
-**/*.exec
+src/open.exec
